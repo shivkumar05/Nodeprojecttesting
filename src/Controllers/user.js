@@ -28,6 +28,7 @@ const strengthTestModel = require("../Models/strength_testModel");
 const academy_coachModel = require("../Models/academy_coachModel");
 const recommendationModel = require("../Models/recommendationModel");
 const scoreAndremarkModel = require("../Models/scoreAndremarkModel");
+const SnCPlayerProfile = require("../Models/sncPlayerProfile");
 
 //==========================[user register]==============================
 const createUser = async function (req, res) {
@@ -2107,14 +2108,7 @@ const createInvites = async function (req, res) {
 const createSnCPlayer = async function (req, res) {
   try {
     let data = req.body;
-    let {
-      name,
-      phone,
-      join_as,
-      join_for,
-      email,
-      password,
-    } = data;
+    let { name, phone, join_as, join_for, email, password } = data;
 
     if (await SnCPlayerModel.findOne({ phone: phone }))
       return res.status(400).send({ message: "Phone already exist" });
@@ -2174,6 +2168,12 @@ const SnCPlayerLogin = async function (req, res) {
       });
     }
 
+    let PlayerProfile = await SnCPlayerProfile.findOne({
+      userId: user._id,
+    }).select({ _id: 0, createdAt: 0, updatedAt: 0, __v: 0 });
+    let type = PlayerProfile ? "Yes" : "No";
+    user.player_details_submit = type;
+
     var token = jwt.sign(
       {
         userId: user._id,
@@ -2199,6 +2199,8 @@ const SnCPlayerLogin = async function (req, res) {
         join_for: user.join_for,
         email: user.email,
         password: user.password,
+        player_details_submit: user.player_details_submit,
+        playerProfile: PlayerProfile,
         token: updateToken.token,
       },
     });

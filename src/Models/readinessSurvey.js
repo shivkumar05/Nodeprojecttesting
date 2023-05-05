@@ -9,7 +9,7 @@ const readinessSurvey = new mongoose.Schema(
     Stressed: { type: Number, require: true },
     Sore: { type: Number, require: true },
     Heart_rate: { type: Number, require: true },
-    Urine_color: { type: String, require: true },
+    Urine_color: { type: Number, require: true },
   },
   { timestamps: true }
 );
