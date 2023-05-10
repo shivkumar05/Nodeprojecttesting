@@ -4,9 +4,9 @@ const workoutSchema = new mongoose.Schema(
   {
     userId: { type: String },
     date: { type: String },
-    workout: { type: Number },
-    total_time: { type: String },
-    minutes_batted: { type: String },
+    intensity: { type: Number },
+    total_time: { type: Number },
+    minutes_batted: { type: Number },
     balls_bowled: { type: Number },
   },
   { timestamps: true }

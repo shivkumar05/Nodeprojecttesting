@@ -2216,10 +2216,14 @@ const SnCPlayerLogin = async function (req, res) {
 const readinessSurvey = async function (req, res) {
   try {
     let data = req.body;
+    let userId = req.params.userId;
+
+    data.userId = userId;
 
     const createReadinessSurvey = await readinessSurveyModel.create(data);
 
     let obj = {};
+    obj["userId"] = createReadinessSurvey.userId;
     obj["date"] = createReadinessSurvey.date;
     obj["Sleep"] = createReadinessSurvey.Sleep;
     obj["Mood"] = createReadinessSurvey.Mood;
@@ -2316,7 +2320,7 @@ const createWorkout = async function (req, res) {
 
     obj["userId"] = Workout.userId;
     obj["date"] = Workout.date;
-    obj["workout"] = Workout.workout;
+    obj["intensity"] = Workout.intensity;
     obj["total_time"] = Workout.total_time;
     obj["minutes_batted"] = Workout.minutes_batted;
     obj["balls_bowled"] = Workout.balls_bowled;

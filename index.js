@@ -17,6 +17,10 @@ const onGoingDrillModel = require("./src/Models/onGoingDrillModel");
 const academy_coachModel = require("./src/Models/academy_coachModel");
 const recommendationModel = require("./src/Models/recommendationModel");
 const feedBackModel = require("./src/Models/feedBackModel");
+const SnCPlayerModel = require("./src/Models/SnCPlayerModel");
+const bcrypt = require("bcrypt");
+const readinessSurvey = require("./src/Models/readinessSurvey");
+const SessionModel = require("./src/Models/SessionModel");
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
@@ -1212,6 +1216,162 @@ app.put(
     }
   }
 );
+
+
+//==========================[Update SNC Password]=================
+
+
+app.post("/updateSncPassword", async (req, res) => {
+  try {
+    let data = req.body;
+    let { email, password } = data;
+
+    let user2 = await SnCPlayerModel.findOne({ email: email });
+
+    const encryptedPassword = bcrypt.hashSync(password, 12);
+    data.password = encryptedPassword;
+
+    let user = await SnCPlayerModel.findOneAndUpdate(
+      { email: email },
+      { $set: { password: encryptedPassword } },
+      { new: true }
+    );
+    ;
+    return res.status(200).send({
+      status: true,
+      message: "Password Updated Successfully",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      msg: error.message,
+    });
+  }
+});
+
+//=============[ get SNC contact ]================
+app.post("/getSncContact", async (req, res) => {
+  try {
+    let email = req.body.email;
+
+    let user = await SnCPlayerModel.findOne({ email: email });
+
+    if (!user) {
+      return res.status(400).send({
+        status: false,
+        msg: "This Email are not Registered.",
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        msg: "Get Contact",
+        data: {
+          phone: user.phone,
+        },
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      msg: error.message,
+    });
+  }
+});
+
+
+//=============[ get IsReadiness submitted for a day]================
+
+app.get("/:userId/getReadinesssurvey", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
+  try {
+    let data = req.query;
+    let userId = req.params.userId;
+
+    let { date } = data;
+
+    let filter = {};
+
+    if (date) {
+      filter.date = date;
+    }
+    let Readiness = await readinessSurvey.findOne({ userId: userId, date: date });
+    if (Readiness) {
+      return res.status(200).send({
+        status: true,
+        message: "Success",
+        submitted: true
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "Success",
+        submitted: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
+    });
+  }
+
+})
+
+
+
+//================[SnC Session Type]========================
+
+
+
+app.post("/SncSession", async (req, res) => {
+  try {
+    let data = req.body;
+
+    let SessionArr = [];
+
+    for (let i = 0; i < data.length; i++) {
+      let { id, title } = data[i];
+
+      let Session = await SessionModel.create(data[i]);
+      SessionArr.push(Session);
+    }
+
+    return res.status(201).send({
+      status: true,
+      message: "Session Created Successfully",
+      data: SessionArr,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
+    });
+  }
+})
+//==================[Get SnC Test Category]================
+app.get("/GetSncSession", async (req, res) => {
+  try {
+    let body = req.query;
+    let filter = {};
+
+    if (body.id) {
+      filter.id = body.id;
+    }
+
+    const Session = await SessionModel.find(filter).select({ id: 1, SessionType: 1, _id: 0 });
+
+    return res.status(200).send({
+      status: true,
+      message: "Get Session Successfully",
+      data: Session,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
+    });
+  }
+})
+
 
 //==================[Database Connectivity]==========================
 mongoose
