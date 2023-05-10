@@ -21,6 +21,7 @@ const SnCPlayerModel = require("./src/Models/SnCPlayerModel");
 const bcrypt = require("bcrypt");
 const readinessSurvey = require("./src/Models/readinessSurvey");
 const SessionModel = require("./src/Models/SessionModel");
+const Test_Model = require("./src/Models/Test_Model");
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
@@ -1372,6 +1373,42 @@ app.get("/GetSncSession", async (req, res) => {
   }
 })
 
+// ========================[store Test score ]=======================//
+
+app.post("/:userId/Test", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
+  try {
+    let data = req.body;
+    let userId = req.params.userId;
+
+    let TestArr = [];
+
+    for (let i = 0; i < data.length; i++) {
+      let {
+        testId,
+        catId,
+        date,
+        title,
+        score,
+        unit
+      } = data;
+      data.userId = userId;
+
+      let Test = await Test_Model.create(data[i]);
+      TestArr.push(Test);
+    }
+
+    return res.status(201).send({
+      status: true,
+      message: "Session Created Successfully",
+      data: TestArr,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
+    });
+  }
+})
 
 //==================[Database Connectivity]==========================
 mongoose
