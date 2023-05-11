@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const moment = require("moment");
 const path = require("path");
 const multer = require("multer");
 const mongoose = require("mongoose");
@@ -1409,6 +1410,45 @@ app.post("/:userId/Test", commnMid.jwtValidation, commnMid.authorization, async 
     });
   }
 })
+
+// =================[Readiness survey day wise sleep]===============
+
+app.get("/:userId/getdaywisesleepssurvey", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
+  try {
+    let userId = req.params.userId;
+    var start_date = req.query.date
+    var end_date = req.query.end_date
+    let output = [];
+    let totalSleep = 0;
+    let count = 0;
+    let Readiness = await readinessSurvey.find({ userId: userId });
+    for (let i = 0; i < Readiness.length; i++) {
+      let current_date = Readiness[i].date;
+      if (current_date >= start_date && current_date <= end_date) {
+        output.push({
+          date: current_date,
+          Sleep: Readiness[i].Sleep
+        });
+        totalSleep += Readiness[i].Sleep;
+        count++;
+      }
+    }
+    let averageSleep = (totalSleep / count).toFixed(2);
+    return res.status(200).send({
+      status: true,
+      message: "Success",
+      Average :averageSleep,
+      Sleep: output
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
+    });
+  }
+
+})
+
 
 //==================[Database Connectivity]==========================
 mongoose
