@@ -222,8 +222,7 @@ app.get(
       let arr2 = [];
 
       let getVideo = await uploadDevice.find({ $or: [filter] });
-      for (let i = 0; i > getVideo.length; i++) {
-      }
+      for (let i = 0; i > getVideo.length; i++) {}
       arr2.push(...getVideo);
       let OnGoingData = await onGoingDrillModel.find({ $or: [filter] });
       arr2.push(...OnGoingData);
@@ -1219,9 +1218,7 @@ app.put(
   }
 );
 
-
 //==========================[Update SNC Password]=================
-
 
 app.post("/updateSncPassword", async (req, res) => {
   try {
@@ -1238,7 +1235,6 @@ app.post("/updateSncPassword", async (req, res) => {
       { $set: { password: encryptedPassword } },
       { new: true }
     );
-    ;
     return res.status(200).send({
       status: true,
       message: "Password Updated Successfully",
@@ -1280,49 +1276,51 @@ app.post("/getSncContact", async (req, res) => {
   }
 });
 
-
 //=============[ get IsReadiness submitted for a day]================
 
-app.get("/:userId/getReadinesssurvey", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
-  try {
-    let data = req.query;
-    let userId = req.params.userId;
+app.get(
+  "/:userId/getReadinesssurvey",
+  commnMid.jwtValidation,
+  commnMid.authorization,
+  async (req, res) => {
+    try {
+      let data = req.query;
+      let userId = req.params.userId;
 
-    let { date } = data;
+      let { date } = data;
 
-    let filter = {};
+      let filter = {};
 
-    if (date) {
-      filter.date = date;
-    }
-    let Readiness = await readinessSurvey.findOne({ userId: userId, date: date });
-    if (Readiness) {
-      return res.status(200).send({
-        status: true,
-        message: "Success",
-        submitted: true
+      if (date) {
+        filter.date = date;
+      }
+      let Readiness = await readinessSurvey.findOne({
+        userId: userId,
+        date: date,
       });
-    } else {
-      return res.status(200).send({
-        status: true,
-        message: "Success",
-        submitted: false,
+      if (Readiness) {
+        return res.status(200).send({
+          status: true,
+          message: "Success",
+          submitted: true,
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "Success",
+          submitted: false,
+        });
+      }
+    } catch (error) {
+      return res.status(500).send({
+        status: false,
+        message: error.message,
       });
     }
-  } catch (error) {
-    return res.status(500).send({
-      status: false,
-      message: error.message,
-    });
   }
-
-})
-
-
+);
 
 //================[SnC Session Type]========================
-
-
 
 app.post("/SncSession", async (req, res) => {
   try {
@@ -1348,7 +1346,7 @@ app.post("/SncSession", async (req, res) => {
       message: error.message,
     });
   }
-})
+});
 //==================[Get SnC Test Category]================
 app.get("/GetSncSession", async (req, res) => {
   try {
@@ -1359,7 +1357,11 @@ app.get("/GetSncSession", async (req, res) => {
       filter.id = body.id;
     }
 
-    const Session = await SessionModel.find(filter).select({ id: 1, SessionType: 1, _id: 0 });
+    const Session = await SessionModel.find(filter).select({
+      id: 1,
+      SessionType: 1,
+      _id: 0,
+    });
 
     return res.status(200).send({
       status: true,
@@ -1372,83 +1374,485 @@ app.get("/GetSncSession", async (req, res) => {
       message: error.message,
     });
   }
-})
+});
 
 // ========================[store Test score ]=======================//
 
-app.post("/:userId/Test", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
-  try {
-    let data = req.body;
-    let userId = req.params.userId;
+app.post(
+  "/:userId/Test",
+  commnMid.jwtValidation,
+  commnMid.authorization,
+  async (req, res) => {
+    try {
+      let data = req.body;
+      let userId = req.params.userId;
 
-    let TestArr = [];
+      let TestArr = [];
 
-    for (let i = 0; i < data.length; i++) {
-      let {
-        testId,
-        catId,
-        date,
-        title,
-        score,
-        unit
-      } = data;
-      data.userId = userId;
+      for (let i = 0; i < data.length; i++) {
+        let { testId, catId, date, title, score, unit } = data;
+        data.userId = userId;
 
-      let Test = await Test_Model.create(data[i]);
-      TestArr.push(Test);
-    }
-
-    return res.status(201).send({
-      status: true,
-      message: "Session Created Successfully",
-      data: TestArr,
-    });
-  } catch (error) {
-    return res.status(500).send({
-      status: false,
-      message: error.message,
-    });
-  }
-})
-
-// =================[Readiness survey day wise sleep]===============
-
-app.get("/:userId/getdaywisesleepssurvey", commnMid.jwtValidation, commnMid.authorization, async (req, res) => {
-  try {
-    let userId = req.params.userId;
-    var start_date = req.query.date
-    var end_date = req.query.end_date
-    let output = [];
-    let totalSleep = 0;
-    let count = 0;
-    let Readiness = await readinessSurvey.find({ userId: userId });
-    for (let i = 0; i < Readiness.length; i++) {
-      let current_date = Readiness[i].date;
-      if (current_date >= start_date && current_date <= end_date) {
-        output.push({
-          date: current_date,
-          Sleep: Readiness[i].Sleep
-        });
-        totalSleep += Readiness[i].Sleep;
-        count++;
+        let Test = await Test_Model.create(data[i]);
+        TestArr.push(Test);
       }
+
+      return res.status(201).send({
+        status: true,
+        message: "Session Created Successfully",
+        data: TestArr,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: false,
+        message: error.message,
+      });
     }
-    let averageSleep = (totalSleep / count).toFixed(2);
-    return res.status(200).send({
-      status: true,
-      message: "Success",
-      Average :averageSleep,
-      Sleep: output
-    });
-  } catch (error) {
-    return res.status(500).send({
-      status: false,
-      message: error.message,
-    });
   }
+);
 
-})
+//=====================[Readiness survey day wise sleep]=====================
 
+app.get(
+  "/:userId/getdaywisesurvey",
+  commnMid.jwtValidation,
+  commnMid.authorization,
+  async (req, res) => {
+    try {
+      let userId = req.params.userId;
+      let sleep = [];
+      let mood = [];
+      let energy = [];
+      let stressed = [];
+      let sore = [];
+      let heart_rate = [];
+      let urine_color = [];
+      let count = 0;
+      let totalSleep = 0;
+      let totalMood = 0;
+      let totalEnergy = 0;
+      let totalStressed = 0;
+      let totalSore = 0;
+      let totalHeart_rate = 0;
+      let totalUrine_color = 0;
+      let Readiness = await readinessSurvey
+        .find({ userId: userId })
+        .sort({ date: 1 });
+      let startDateString = req.query.date;
+      let endDateString = req.query.end_date;
+      let [startDay, startMonth, startYear] = startDateString.split("-");
+      let [endDay, endMonth, endYear] = endDateString.split("-");
+
+      let startDateObj = new Date(`${startYear}`, startMonth - 1, startDay);
+      let endDateObj = new Date(`${endYear}`, endMonth - 1, endDay);
+
+      let dateArray = [];
+      for (
+        let date = startDateObj;
+        date <= endDateObj;
+        date.setDate(date.getDate() + 1)
+      ) {
+        let dateString = date
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          .split("/")
+          .join("-");
+        dateArray.push({ date: dateString });
+      }
+
+      for (let i = 0; i < Readiness.length; i++) {
+        for (let j = 0; j < dateArray.length; j++) {
+          var current_date = dateArray[j].date;
+          if (current_date == Readiness[i].date) {
+            if (
+              current_date >= startDateString &&
+              current_date <= endDateString
+            ) {
+              sleep.push({
+                title: current_date,
+                value: Readiness[i].Sleep,
+              });
+              totalSleep += Readiness[i].Sleep;
+              count++;
+              mood.push({
+                title: current_date,
+                value: Readiness[i].Mood,
+              });
+              totalMood += Readiness[i].Mood;
+              energy.push({
+                title: current_date,
+                value: Readiness[i].Energy,
+              });
+              totalEnergy += Readiness[i].Energy;
+              stressed.push({
+                title: current_date,
+                value: Readiness[i].Stressed,
+              });
+              totalStressed += Readiness[i].Stressed;
+              sore.push({
+                title: current_date,
+                value: Readiness[i].Sore,
+              });
+              totalSore += Readiness[i].Sore;
+              heart_rate.push({
+                title: current_date,
+                value: Readiness[i].Heart_rate,
+              });
+              totalHeart_rate += Readiness[i].Heart_rate;
+              urine_color.push({
+                title: current_date,
+                value: Readiness[i].Urine_color,
+              });
+              totalUrine_color += Readiness[i].Urine_color;
+            }
+          }
+        }
+      }
+      let averageSleep = (totalSleep / count).toFixed(2);
+      let averageMood = (totalMood / count).toFixed(2);
+      let averageEnergy = (totalEnergy / count).toFixed(2);
+      let averageStressed = (totalStressed / count).toFixed(2);
+      let averageSore = (totalSore / count).toFixed(2);
+      let averageHeart_rate = (totalHeart_rate / count).toFixed(2);
+      let averageUrine_color = (totalUrine_color / count).toFixed(2);
+
+      return res.status(200).send({
+        status: true,
+        message: "Success",
+        AverageSleep: averageSleep,
+        Sleep: sleep,
+        AverageMood: averageMood,
+        Mood: mood,
+        AverageEnergy: averageEnergy,
+        Energy: energy,
+        AverageStressed: averageStressed,
+        Stressed: stressed,
+        AverageSore: averageSore,
+        Sore: sore,
+        AverageHeart_rate: averageHeart_rate,
+        Heart_rate: heart_rate,
+        AverageUrine_color: averageUrine_color,
+        Urine_color: urine_color,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+);
+
+//=================[Readiness survey Month wise Average]===============
+app.get(
+  "/:userId/getmonthwiseaverage",
+  commnMid.jwtValidation,
+  commnMid.authorization,
+  async (req, res) => {
+    try {
+      let userId = req.params.userId;
+      let weeklyAverageSleep = [];
+      let weeklySleepTotal = 0;
+      let weeklySleepCount = 0;
+      let weeklyAverageMood = [];
+      let weeklyMoodTotal = 0;
+      let weeklyMoodCount = 0;
+      let weeklyAverageEnergy = [];
+      let weeklyEnergyTotal = 0;
+      let weeklyEnergyCount = 0;
+      let weeklyAverageStressed = [];
+      let weeklyStressedTotal = 0;
+      let weeklyStressedCount = 0;
+      let weeklyAverageSore = [];
+      let weeklySoreTotal = 0;
+      let weeklySoreCount = 0;
+      let weeklyAverageHeart_rate = [];
+      let weeklyHeart_rateTotal = 0;
+      let weeklyHeart_rateCount = 0;
+      let weeklyAverageUrine_color = [];
+      let weeklyUrine_colorTotal = 0;
+      let weeklyUrine_colorCount = 0;
+      let monthlyAverageSleep = 0;
+      let monthlyAverageMood = 0;
+      let monthlyAverageEnergy = 0;
+      let monthlyAverageStressed = 0;
+      let monthlyAverageSore = 0;
+      let monthlyAverageHeart_rate = 0;
+      let monthlyAverageUrine_color = 0;
+
+      let Readiness = await readinessSurvey
+        .find({ userId: userId })
+        .sort({ date: 1 });
+
+      let startDateString = req.query.date;
+      let endDateString = req.query.end_date;
+      let [startDay, startMonth, startYear] = startDateString.split("-");
+      let [endDay, endMonth, endYear] = endDateString.split("-");
+
+      let startDateObj = new Date(`${startYear}`, startMonth - 1, startDay);
+      let endDateObj = new Date(`${endYear}`, endMonth - 1, endDay);
+
+      let dateArray = [];
+      for (
+        let date = startDateObj;
+        date <= endDateObj;
+        date.setDate(date.getDate() + 1)
+      ) {
+        let dateString = date
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          .split("/")
+          .join("-");
+        dateArray.push({ date: dateString });
+      }
+
+      for (let j = 0; j < dateArray.length; j++) {
+        let currentDate = dateArray[j].date;
+        let readinessData = Readiness.find((r) => r.date === currentDate);
+        //============[Sleep]========
+        if (readinessData) {
+          let sleepValue = readinessData.Sleep;
+          weeklySleepTotal += sleepValue;
+          weeklySleepCount++;
+          if (weeklySleepCount % 7 === 0) {
+            let averageSleep = (weeklySleepTotal / 7).toFixed(2);
+            weeklyAverageSleep.push({
+              startDate: dateArray[j - 6].date,
+              averageSleep: averageSleep,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+
+            monthlyAverageSleep += parseFloat(averageSleep);
+            weeklySleepTotal = 0;
+            weeklySleepCount = 0;
+          }
+          //************Mood********************/
+          let moodValue = readinessData.Mood;
+          weeklyMoodTotal += moodValue;
+          weeklyMoodCount++;
+          if (weeklyMoodCount % 7 === 0) {
+            let averageMood = (weeklyMoodTotal / 7).toFixed(2);
+            weeklyAverageMood.push({
+              startDate: dateArray[j - 6].date,
+              averageMood: averageMood,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageMood += parseFloat(averageMood);
+            weeklyMoodTotal = 0;
+            weeklyMoodCount = 0;
+          }
+          //**************Energy*******/
+          let energyValue = readinessData.Energy;
+          weeklyEnergyTotal += energyValue;
+          weeklyEnergyCount++;
+          if (weeklyEnergyCount % 7 === 0) {
+            let averageEnergy = (weeklyEnergyTotal / 7).toFixed(2);
+            weeklyAverageEnergy.push({
+              startDate: dateArray[j - 6].date,
+              averageEnergy: averageEnergy,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageEnergy += parseFloat(averageEnergy);
+            weeklyEnergyTotal = 0;
+            weeklyEnergyCount = 0;
+          }
+          //***********Stressed******//
+          let stressedValue = readinessData.Stressed;
+          weeklyStressedTotal += stressedValue;
+          weeklyStressedCount++;
+          if (weeklyStressedCount % 7 === 0) {
+            let averageStressed = (weeklyStressedTotal / 7).toFixed(2);
+            weeklyAverageStressed.push({
+              startDate: dateArray[j - 6].date,
+              averageStressed: averageStressed,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageStressed += parseFloat(averageStressed);
+            weeklyStressedTotal = 0;
+            weeklyStressedCount = 0;
+          }
+          //************Sore*********//
+          let soreValue = readinessData.Sore;
+          weeklySoreTotal += soreValue;
+          weeklySoreCount++;
+          if (weeklySoreCount % 7 === 0) {
+            let averageSore = (weeklySoreTotal / 7).toFixed(2);
+            weeklyAverageSore.push({
+              startDate: dateArray[j - 6].date,
+              averageSore: averageSore,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageSore += parseFloat(averageSore);
+            weeklySoreTotal = 0;
+            weeklySoreCount = 0;
+          }
+          //*********Heart_rate*****//
+          let heartRateValue = readinessData.Heart_rate;
+          weeklyHeart_rateTotal += heartRateValue;
+          weeklyHeart_rateCount++;
+          if (weeklyHeart_rateCount % 7 === 0) {
+            let averageHeart_rate = (weeklyHeart_rateTotal / 7).toFixed(2);
+            weeklyAverageHeart_rate.push({
+              startDate: dateArray[j - 6].date,
+              averageHeart_rate: averageHeart_rate,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageHeart_rate += parseFloat(averageHeart_rate);
+            weeklyHeart_rateTotal = 0;
+            weeklyHeart_rateCount = 0;
+          }
+          //************Urine_color*********//
+          let urineColorValue = readinessData.Urine_color;
+          weeklyUrine_colorTotal += urineColorValue;
+          weeklyUrine_colorCount++;
+          if (weeklyUrine_colorCount % 7 === 0) {
+            let averageUrine_color = (weeklyUrine_colorTotal / 7).toFixed(2);
+            weeklyAverageUrine_color.push({
+              startDate: dateArray[j - 6].date,
+              averageUrine_color: averageUrine_color,
+              week: Math.floor((j - 6) / 7) + 1,
+            });
+            monthlyAverageUrine_color += parseFloat(averageUrine_color);
+            weeklyUrine_colorTotal = 0;
+            weeklyUrine_colorCount = 0;
+          }
+        }
+      }
+
+      if (weeklySleepCount > 0) {
+        let averageSleep = (weeklySleepTotal / weeklySleepCount).toFixed(2);
+        let weekNumber = Math.floor(weeklySleepCount / 7) + 1;
+
+        weeklyAverageSleep.push({
+          startDate: dateArray[dateArray.length - weeklySleepCount].date,
+          averageSleep: averageSleep,
+          week: weekNumber,
+        });
+
+        monthlyAverageSleep += parseFloat(averageSleep);
+      }
+
+      let monthAverageSleep = (
+        monthlyAverageSleep / weeklyAverageSleep.length
+      ).toFixed(2);
+
+      //=========[Mood]===============
+      if (weeklyMoodCount > 0) {
+        let averageMood = (weeklyMoodTotal / weeklyMoodCount).toFixed(2);
+        let weekNumber = Math.floor(weeklyMoodCount / 7) + 1;
+
+        weeklyAverageMood.push({
+          startDate: dateArray[dateArray.length - weeklyMoodCount].date,
+          averageMood: averageMood,
+          week: weekNumber,
+        });
+        var monthAverageMood = (
+          monthlyAverageMood / weeklyAverageMood.length
+        ).toFixed(2);
+      }
+      //=======[Energy]=============
+      if (weeklyEnergyCount > 0) {
+        let averageEnergy = (weeklyEnergyTotal / weeklyEnergyCount).toFixed(2);
+        let weekNumber = Math.floor(weeklyEnergyCount / 7) + 1;
+        weeklyAverageEnergy.push({
+          startDate: dateArray[dateArray.length - weeklyEnergyCount].date,
+          averageEnergy: averageEnergy,
+          week: weekNumber,
+        });
+        var monthAverageEnergy = (
+          monthlyAverageEnergy / weeklyAverageEnergy.length
+        ).toFixed(2);
+      }
+      //======[Stressed]========
+      if (weeklyStressedCount > 0) {
+        let averageStressed = (
+          weeklyStressedTotal / weeklyStressedCount).toFixed(2);
+        let weekNumber = Math.floor(weeklyStressedCount / 7) + 1;
+        weeklyAverageStressed.push({
+          startDate: dateArray[dateArray.length - weeklyStressedCount].date,
+          averageStressed: averageStressed,
+          week: weekNumber,
+        });
+        var monthAverageStressed = (
+          monthlyAverageStressed / weeklyAverageStressed.length
+        ).toFixed(2);
+      }
+      //===========[Sore]=======
+      if (weeklySoreCount > 0) {
+        let averageSore = (weeklySoreTotal / weeklySoreCount).toFixed(2);
+        let weekNumber = Math.floor(weeklySoreCount / 7) + 1;
+        weeklyAverageSore.push({
+          startDate: dateArray[dateArray.length - weeklySoreCount].date,
+          averageSore: averageSore,
+          week: weekNumber,
+        });
+        var monthAverageSore = (
+          monthlyAverageSore / weeklyAverageSore.length
+        ).toFixed(2);
+      }
+      //==========[Heart_rate]=======
+      if (weeklyHeart_rateCount > 0) {
+        let averageHeart_rate = (
+          weeklyHeart_rateTotal / weeklyHeart_rateCount
+        ).toFixed(2);
+        let weekNumber = Math.floor(weeklyHeart_rateCount / 7) + 1;
+        weeklyAverageHeart_rate.push({
+          startDate: dateArray[dateArray.length - weeklyHeart_rateCount].date,
+          averageHeart_rate: averageHeart_rate,
+          week: weekNumber,
+        });
+        var monthAverageHeart_rate = (
+          monthlyAverageHeart_rate / weeklyAverageHeart_rate.length
+        ).toFixed(2);
+      }
+      //========[Urine_color]====
+      if (weeklyUrine_colorCount > 0) {
+        let averageUrine_color = (
+          weeklyUrine_colorTotal / weeklyUrine_colorCount
+        ).toFixed(2);
+        let weekNumber = Math.floor(weeklyUrine_colorCount / 7) + 1;
+        weeklyAverageUrine_color.push({
+          startDate: dateArray[dateArray.length - weeklyUrine_colorCount].date,
+          averageUrine_color: averageUrine_color,
+          week: weekNumber,
+        });
+        var monthAverageUrine_color = (
+          monthlyAverageUrine_color / weeklyAverageUrine_color.length
+        ).toFixed(2);
+      }
+
+      return res.status(200).send({
+        status: true,
+        message: "Success",
+        weeklyAverageSleep: weeklyAverageSleep,
+        monthlyAverageSleep: monthAverageSleep,
+        weeklyAverageMood: weeklyAverageMood,
+        monthlyAverageMood: monthAverageMood,
+        weeklyAverageEnergy: weeklyAverageEnergy,
+        monthlyAverageEnergy: monthAverageEnergy,
+        weeklyAverageStressed: weeklyAverageStressed,
+        monthlyAverageStressed: monthAverageStressed,
+        weeklyAverageSore: weeklyAverageSore,
+        monthlyAverageSore: monthAverageSore,
+        weeklyAverageHeart_rate: weeklyAverageHeart_rate,
+        monthlyAverageHeart_rate: monthAverageHeart_rate,
+        weeklyAverageUrine_color: weeklyAverageUrine_color,
+        monthlyAverageUrine_color: monthAverageUrine_color,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+);
 
 //==================[Database Connectivity]==========================
 mongoose
